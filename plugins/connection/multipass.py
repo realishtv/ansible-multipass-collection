@@ -13,9 +13,8 @@ import getpass
 
 import ansible.constants as C
 from ansible.errors import AnsibleError, AnsibleFileNotFound
-from ansible.module_utils.compat import selectors
-from ansible.module_utils.six import text_type, binary_type
-from ansible.module_utils._text import to_bytes, to_native, to_text
+import selectors
+from ansible.module_utils.common.text.converters import to_text, to_bytes, to_native
 from ansible.plugins.connection import ConnectionBase
 from ansible.utils.display import Display
 from ansible.utils.path import unfrackpath
@@ -48,12 +47,12 @@ class Connection(ConnectionBase):
             self._connected = True
         return self
 
-    def exec_command(self, cmd, in_data=None, sudoable=True):
+    def _exec_command(self, cmd, in_data=None, sudoable=True):
         ''' run a command on the multipass VM '''
 
-        super(Connection, self).exec_command(cmd, in_data=in_data, sudoable=sudoable)
+        super(Connection, self)._exec_command(cmd, in_data=in_data, sudoable=sudoable)
 
-        display.debug("in multipass.exec_command()")
+        display.debug("in multipass._exec_command()")
 
         executable = C.DEFAULT_EXECUTABLE.split()[0] if C.DEFAULT_EXECUTABLE else None
 
@@ -66,7 +65,7 @@ class Connection(ConnectionBase):
         display.vvv(u"EXEC {0}".format(to_text(multipass_cmd + cmd)), host=self._play_context.remote_addr)
         display.debug("opening command with Popen()")
 
-        if isinstance(cmd, (text_type, binary_type)):
+        if isinstance(cmd, (str, bytes)):
             cmd = to_bytes(multipass_cmd + cmd)
         else:
             cmd = map(to_bytes, multipass_cmd + cmd)
@@ -85,7 +84,7 @@ class Connection(ConnectionBase):
 
         p = subprocess.Popen(
             cmd,
-            shell=isinstance(cmd, (text_type, binary_type)),
+            shell=isinstance(cmd, (str, bytes)),
             executable=executable,
             cwd=self.cwd,
             stdin=stdin,
@@ -142,8 +141,8 @@ class Connection(ConnectionBase):
         if master:
             os.close(master)
 
-        display.debug("done with multipass.exec_command()")
-        return (p.returncode, stdout, stderr)
+        display.debug("done with multipass._exec_command()")
+        return (p.returncode, to_text(stdout, encoding='utf-8'), to_text(stderr, encoding='utf-8'))
 
     def put_file(self, in_path, out_path):
         ''' transfer a file from local to the multipass VM '''
