@@ -47,12 +47,12 @@ class Connection(ConnectionBase):
             self._connected = True
         return self
 
-    def _exec_command(self, cmd, in_data=None, sudoable=True):
+    def exec_command(self, cmd, in_data=None, sudoable=True):
         ''' run a command on the multipass VM '''
 
-        super(Connection, self)._exec_command(cmd, in_data=in_data, sudoable=sudoable)
+        super(Connection, self).exec_command(cmd, in_data=in_data, sudoable=sudoable)
 
-        display.debug("in multipass._exec_command()")
+        display.debug("in multipass.exec_command()")
 
         executable = C.DEFAULT_EXECUTABLE.split()[0] if C.DEFAULT_EXECUTABLE else None
 
@@ -141,7 +141,7 @@ class Connection(ConnectionBase):
         if master:
             os.close(master)
 
-        display.debug("done with multipass._exec_command()")
+        display.debug("done with multipass.exec_command()")
         return (p.returncode, to_text(stdout, encoding='utf-8'), to_text(stderr, encoding='utf-8'))
 
     def put_file(self, in_path, out_path):
