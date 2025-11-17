@@ -150,7 +150,7 @@ class Connection(ConnectionBase):
         super(Connection, self).put_file(in_path, out_path)
 
         in_path = unfrackpath(in_path, basedir=self.cwd)
-        out_path = unfrackpath(out_path, basedir=self.cwd)
+        #out_path = unfrackpath(out_path, basedir=self.cwd)
 
         display.vvv(u"PUT {0} TO {1}:{2}".format(in_path, self.get_option('remote_addr'), out_path), host=self._play_context.remote_addr)
         if not os.path.exists(to_bytes(in_path, errors='surrogate_or_strict')):
